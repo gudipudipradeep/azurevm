@@ -109,7 +109,7 @@ resource "azurerm_network_interface" "aznic" {
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "azssgassociation" {
     count                 = "${var.no_vm}"
-    network_interface_id      = "${azurerm_network_interface.aznic[count.index]}"
+    network_interface_id      = "${azurerm_network_interface.aznic[count.index].id}"
     network_security_group_id = azurerm_network_security_group.aznsg.id
 }
 

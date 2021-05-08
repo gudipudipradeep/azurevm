@@ -1,13 +1,7 @@
 variable "azure_region" {
   type = string
   description = "Azure region for deploying new resources"
-  default = "West Europe"
-}
-
-variable "azure_rg_name" {
-  type = string
-  description = "Name of the Resource Group"
-  default = "vmrsgroup"
+  default = "westus"
 }
 
 variable "linux_flavors" {
@@ -37,13 +31,13 @@ variable "no_vm" {
 variable "type_of_db" {
   type = string
   description = "Cosmosdb"
-  default = "EnableTable"
+  default = "EnableMongo"
 }
 
 variable "failover_location" {
   type = string
   description = "failover location cosmosdb"
-  default = "West US 2"
+  default = "westus"
 }
 
 variable "user_name_databricks_access" {
