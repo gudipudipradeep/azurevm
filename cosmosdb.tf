@@ -1,3 +1,12 @@
+resource "azurerm_resource_group" "rscosmosdb" {
+    name     = "RSCosmosdb"
+    location = "${var.azure_region}"
+
+    tags = {
+        environment = "Cosmosdb Creation"
+    }
+}
+
 resource "random_integer" "ri" {
   min = 10000
   max = 99999
@@ -5,31 +14,22 @@ resource "random_integer" "ri" {
 
 resource "azurerm_cosmosdb_account" "acc" {
   name                = "cosmos-db-${random_integer.ri.result}"
-  location            = azurerm_resource_group.rsgroup.name
-  resource_group_name = "${var.azure_region}"
+  location            = "${var.azure_region}"
+  resource_group_name = azurerm_resource_group.rscosmosdb.name
   offer_type          = "Standard"
-  kind                = "GlobalDocumentDB"
+  kind                = "MongoDB"
   depends_on = ["azurerm_subnet.AZsubnet"]
 
-  enable_automatic_failover = true
-
-  capabilities {
-    name = var.type_of_db
-  }
+  enable_automatic_failover = false
 
   consistency_policy {
     consistency_level       = "BoundedStaleness"
     max_interval_in_seconds = 10
     max_staleness_prefix    = 200
   }
-
+  
   geo_location {
     location          = var.failover_location
-    failover_priority = 1
-  }
-
-  geo_location {
-    location          = azurerm_resource_group.rsgroup.name
     failover_priority = 0
   }
   
@@ -37,8 +37,9 @@ resource "azurerm_cosmosdb_account" "acc" {
   public_network_access_enabled     = true
   virtual_network_rule {
     id = azurerm_subnet.AZsubnet.id
-  }
+    ignore_missing_vnet_service_endpoint = true
 
+  }
 }
 
 
