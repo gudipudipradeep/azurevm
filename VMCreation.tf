@@ -51,6 +51,13 @@ resource "azurerm_subnet" "AZsubnet" {
     address_prefixes       = ["10.0.1.0/24"]
 }
 
+resource "azurerm_subnet" "AZVnetDBrick" {
+    name                 = "VNETDBrick"
+    resource_group_name  = azurerm_resource_group.rsgroup.name
+    virtual_network_name = azurerm_virtual_network.AZVnet.name
+    address_prefixes       = ["10.0.2.0/24"]
+}
+
 # Create public IPs
 resource "azurerm_public_ip" "VMPublicIIP" {
     count                        = "${var.no_vm}"
