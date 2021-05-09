@@ -7,22 +7,23 @@ terraform {
   }
 }
 
-resource "azurerm_databricks_workspace" "this" {
+
+resource "azurerm_databricks_workspace" "wrkspace" {
   name                        = "databrick_workspace"
   resource_group_name         = azurerm_resource_group.rsgroup.name
   location                    = "${var.azure_region}"
-  depends_on                  = ["azurerm_subnet.AZsubnet"]
-  sku                         = "premium"
+  depends_on                  = ["azurerm_subnet.AZsubnet", "azurerm_subnet.AZVnetDBrick"]
+  sku                         = "standard"
   custom_parameters {
     virtual_network_id  = azurerm_virtual_network.AZVnet.id
-    public_subnet_name  = "databrickpublicsubnet"
-    private_subnet_name = "databrickprivatesubnet"
+    public_subnet_name  = azurerm_subnet.AZsubnet.id
+    private_subnet_name = azurerm_subnet.AZVnetDBrick.id
   }
 }
 
 
 provider "databricks" {
-  azure_workspace_resource_id = azurerm_databricks_workspace.this.id
+  azure_workspace_resource_id = "azurerm_databricks_workspace.wrkspace.id"
 }
 
 resource "databricks_cluster" "shared_autoscaling" {
