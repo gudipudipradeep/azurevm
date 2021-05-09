@@ -1,0 +1,44 @@
+parameters:
+  environment: dev
+  environmentDisplayName: Development
+  TerraformArguments: ''
+  TerraformEnvVariables:
+
+stages:
+- stage: Init_${{ parameters.environment }}
+  displayName: Init ${{ parameters.environmentDisplayName }}
+  pool:
+    vmImage: ubuntu-latest
+  jobs:
+  - job: Terraform
+    displayName: Terraform
+    # Avoid concurrent Terraform runs on PRs, which would result in failures due to exclusive lock on remote state file.
+    condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), variables['RUN_FLAG_TERRAFORM']))
+    steps:
+    - bash: |
+        set -eu
+        export ARM_CLIENT_ID: ${{ parameters.CLIENT_ID }}
+        export ARM_CLIENT_SECRET: ${{ parameters.CLIENT_SECRET }}
+        export ARM_SUBSCRIPTION_ID: ${{ parameters.SUBSCRIPTION_ID }}
+        export ARM_TENANT_ID: ${{ parameters.TENANT_ID }}
+        terraform init
+      displayName: Terraform Init
+      env:
+        ${{ parameters.TerraformEnvVariables }}
+
+- stage: Terraform_apply_${{ parameters.environment }}
+  displayName: PostTerraform ${{ parameters.environmentDisplayName }}
+  pool:
+    vmImage: ubuntu-latest
+  jobs:
+  - job: ReadTerraform
+    displayName: Terraform Deploy
+    steps:
+    - bash: |
+        set -eu
+        export ARM_CLIENT_ID: ${{ parameters.CLIENT_ID }}
+        export ARM_CLIENT_SECRET: ${{ parameters.CLIENT_SECRET }}
+        export ARM_SUBSCRIPTION_ID: ${{ parameters.SUBSCRIPTION_ID }}
+        export ARM_TENANT_ID: ${{ parameters.TENANT_ID }}
+        terraform apply -var-file=${{parameters.environment}}.tfvars
+      displayName: Terraform Init

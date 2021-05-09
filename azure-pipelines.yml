@@ -1,0 +1,22 @@
+pr: none
+trigger:
+  branches:
+    include:
+    - master
+    - qa
+    - dev
+
+variables:
+- group: terraform-secrets
+
+stages:
+- template: terraform-stages-template.yml
+  parameters:
+    environment: dev 
+    environmentDisplayName: dev Deployment
+    CLIENT_ID: '0000-0000-0000-0000-00000000'
+    CLIENT_SECRET: '0000-0000-0000-0000-00000000'
+    SUBSCRIPTION_ID: '0000-0000-0000-0000-00000000'
+    TENANT_ID: '0000-0000-0000-0000-00000000'
+#    TerraformEnvVariables:
+#      TF_VAR_azure_region: 'westus'
